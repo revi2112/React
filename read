@@ -1,1 +1,62 @@
-k
+Learning from react documentation
+
+TIK TOC Game
+
+First make 9 square buttons in main since this piece of code is repeted and each will have some signifacence 
+we will create a square component 
+
+call the the sqaure component 9 times in main function and style 
+
+We can send the value from app.js to square.js to display in button . sending props
+
+For accessing the prop {value} (both in return and parameter of child component) 
+
+now we need to add functionality to buttons
+
+Now each square needs to have some value which is X or O and depending upon the previous one and the possibilities to win
+ need to be tracked as well
+
+To collect the data from mul child components / for childs to talk we need to have shared state which will be create dfrom main and send as props since the functionality is also same the on click event will also be sent from the app.
+
+As a shared state using hooks useState create an array of len 9 initialised to null
+these 9 squares represents the value in respective ones
+
+now we have quote the on click event  and send as props along with value of square to the square.
+    we need to track the saquare with its index to chnage that square value
+    to avoid over writing we need to check if that index in the state array has value
+    to avaoid changing the original state create a copy and work and use setSquare to upateupdate
+
+
+    initally everything will be null in squares array (shared state array)
+    on buuton click 
+        check if the value is present for that index in the array 
+        if not make the dummy array and set the index value 
+        to check if its X or O have another shared state variable isXnext
+
+        if X is next set the index value to x else 0
+        toggele the flag var and set both the sates.
+
+        handles overwriting , XO updating 
+        yet to hadle winner and staus
+
+        winner logic ->
+        list all the possible combonations of winning check is any combination has all values same 
+        return winner / null
+
+
+        on button click check winner if winner is there break 
+        and irrestive of click do the status. 
+
+
+Note -> 
+    if you are calling function on buttion click with parenthesis it will re -render the component the function gets called 
+    before we click when compiling due to parenthesis 
+
+    so create an arrow function () => (watever after this will run when button is clicked)
+    if par is not there first line works.
+            
+            <Square value={squares[0]} handleClick={handleClick(0)} />
+
+
+            <Square value={squares[0]} handleClick={() => handleClick(0)} />
+
