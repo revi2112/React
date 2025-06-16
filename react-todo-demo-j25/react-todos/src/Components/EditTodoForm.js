@@ -1,100 +1,71 @@
-import React, { useState } from 'react';
-import { Toast } from 'react-bootstrap';
-import ToastMesage from './ToastMesage';
+import React, { useState, useEffect } from 'react';
+import { Modal, ModalBody, ModalHeader, Form, Button } from 'react-bootstrap';
 
 
 function EditTodoForm(props) {
 
-    // add event handler to capture the event
-
     const [description, setDescription] = useState('');
     const [assigned, setAssigned] = useState('');
-    const [status, setStatus] = useState('');
     const [priority, setPriority] = useState('');
-    const [errorMsg, setErrorMsg] = useState('');
-    const [showToast, setShowToast] = useState(false);
-    const [toastVariant, setToastVariant] = useState('success');
+    const [status, setStatus] = useState('');
+  
+    useEffect(() => {
+      if (props.todo) {
+        setDescription(props.todo.rowDescription || '');
+        setAssigned(props.todo.rowAssigned || '');
+        setPriority(props.todo.priority || '');
+        setStatus(props.todo.status || '');
+      }
+    }, [props.todo]);
 
-
-    // const descChange = (event) => {
-    //     setDescription(event.target.value) //typing valye
-    // }
-
-    // const assChange = (event) => {
-    //    setAssigned(event.target.value) //typing valye
-    // }
-
-    const submitTodo = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-
-        // get the desc and ass and change the props 
-        // to get the form data use state to store it
-        if (!description || !assigned || !priority || !status) {
-            setErrorMsg("All fields are required");
-            setShowToast(true);
-            return;
-          }
-       else {
-            console.log("in submit")
-
-            props.edit({ description: description, assigned: assigned, status: status, priority: priority });
-            setAssigned('');
-            setDescription('');
-            setPriority('');
-            setStatus('');
-            props.closeForm();
-        }
-    }
-
+        const updated_todo = {
+            ...props.todo,
+            rowAssigned : assigned,
+            rowDescription: description,
+            priority: priority,
+            status: status
+        };
+        props.edit_todo(updated_todo, props.todo.rowNumber);
+        props.onClose();
+    };
     return (
-        <div className='mt-1'>
-        <ToastMesage 
-            show = {showToast}
-            onClose = {()=> setShowToast(false)}
-            errorMsg = {errorMsg}
-            toastVariant = {"danger"}
-            />
-
-            <form onSubmit={submitTodo}>
-                <div>
-                    <label className='form-label'>Assigned</label>
-                    <input type='text' className='form-control'
-                        value={assigned}
-                        onChange={(e) => setAssigned(e.target.value)} ></input>
-                </div>
-                <div>
-                    <label className='form-label'>Description</label>
-                    <textarea
-                        rows={3}
-                        className='form-control'
-                        
-                        onChange={(e) => setDescription(e.target.value)}
-                        value={description}
-                    ></textarea>
-                </div>
-                <div>
-                    <label className='form-label'>Priority</label>
-                    <input type='text' className='form-control'
-                        value={priority}
-                        onChange={(e) => setPriority(e.target.value)} ></input>
-                </div>
-                <div>
-                    <label className='form-label'>Status</label>
-                    <select
-                        className="form-control"
-                        value={status}
-                        onChange={(e) => setStatus(e.target.value)}
-                        
-                    >
-                        <option value="">Select status</option>
-                        <option value="Yet to Start">Yet to Start</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Done">Done</option>
-                    </select>
-                </div>
-                <button type="submit" className='mt-3 btn btn-primary'> Edit Todo</button>
-                <button type="button" className="btn btn-secondary mt-3 ms-2" onClick={props.closeForm}>Cancel</button>
-            </form>
+        <div>
+            <Modal show={props.show} onHide={props.onClose} centered>
+                <ModalHeader>
+                    Edit Your Todo
+                </ModalHeader>
+                <ModalBody>
+                    <Form onSubmit={handleSubmit}>
+                        <Form.Group>
+                            <Form.Label>Description</Form.Label>
+                            <Form.Control value={description} onChange={(e) => setDescription(e.target.value)}></Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Assigned</Form.Label>
+                            <Form.Control value={assigned} onChange={(e) => setAssigned(e.target.value)}></Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Priority</Form.Label>
+                            <Form.Control value={priority} onChange={(e) => setPriority(e.target.value)}></Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Status</Form.Label>
+                            <Form.Select value={status} onChange={(e) => setStatus(e.target.value)} required>
+                                <option value="">Select</option>
+                                <option>Yet to Start</option>
+                                <option>In Progress</option>
+                                <option>Done</option>
+                            </Form.Select>
+                        </Form.Group>
+                        <div className="d-flex justify-content-between mt-4">
+                            <Button variant="secondary" onClick={props.onClose}>Cancel</Button>
+                            <Button variant="primary" type="submit">Update Todo</Button>
+                        </div>
+                    </Form>
+                </ModalBody>
+            </Modal>
         </div>
     )
 }

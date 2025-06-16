@@ -1,5 +1,14 @@
 function TodoRowItem(props) {
 
+    const todo = {
+        rowNumber: props.rownumber,
+        rowDescription: props.rowdesc,
+        priority: props.rowpriority,
+        rowAssigned: props.rowass,
+        status: props.status
+      };
+      
+
     return (
         <tr>
             <th scope="row">{props.rownumber}</th>
@@ -14,7 +23,9 @@ function TodoRowItem(props) {
                 </button>
             </td>
             <td>
-                <button className="btn btn-secondary" onClick={() => props.edit_todo(props.rownumber)}>
+                <button className="btn btn-secondary" onClick={() => {
+                    props.onEdit(todo)
+                }}>
                     <i className="bi bi-pencil"></i>
                 </button>
             </td>

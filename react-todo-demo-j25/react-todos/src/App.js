@@ -1,14 +1,17 @@
-import logo from './logo.svg';
 import './App.css';
 import TodoTable from './Components/TodoTable';
 import React, { useState } from 'react';
 import NewTodoForm from './Components/NewTodoForm';
-import { Modal, Button, ModalHeader, ModalBody, ModalFooter, ModalTitle } from 'react-bootstrap';
+import { Modal, ModalHeader, ModalBody, ModalFooter, ModalTitle } from 'react-bootstrap';
+import EditTodoForm from './Components/EditTodoForm';
 
 function App() {
 
   const [showAddTodoForm, setShowAddTodoForm] = useState(false);
   const [showEditTodoForm, setShowEditTodoForm] = useState(false);
+
+  const [todoToEdit, setTodoToEdit] = useState(null);
+
 
   const [todo_list, setTodoList] = useState([
     { rowNumber: 1, rowDescription: 'Feed puppy', priority: "high", rowAssigned: 'User One', status: "Yet to Start" },
@@ -39,24 +42,30 @@ function App() {
   }
 
   const edit_todo = (updated_todo, todo_rownum) => {
-
     console.log(updated_todo, todo_rownum)
+    const updatedRowNum = Number(todo_rownum);
+    const updatedList = todo_list.map((todo)=>
+        todo.rowNumber === updatedRowNum ? {...todo, ...updated_todo} : todo
+  );
+  console.log(updatedList)
+   setTodoList(updatedList)
+  };
 
-    const updatedList = todo_list.map((todo)=>(
-        todo.rowNumber == todo_rownum ? {...todo, ...updated_todo} : todo
-    ));
-    setTodoList(updatedList)
-    setShowEditForm(false);
-
-  }
-  return (
+  const handleEdit = (todo) => {
+    setTodoToEdit(todo);
+    setShowEditTodoForm(true);
+  };
+  
+    return (
     <div className="mt-5 container">
       <div className='card'>
         <div className='card-header'>
           Your Todo's
         </div>
         <div className='card-body'>
-          <TodoTable todo_list={todo_list} delete_todo={delete_todo} edit_todo = {edit_todo}/>
+          <TodoTable 
+          todo_list={todo_list} delete_todo={delete_todo} onEdit={handleEdit}    
+          />
           {/* <button className='btn btn-primary' onClick={() => setShowAddTodoForm(!showAddTodoForm)}> 
           {showAddTodoForm ? 'Close New Todo' : 'New Todo'}
           </button> */}
@@ -85,21 +94,13 @@ function App() {
 
           </Modal>
 
-          <Modal
-            show={showEditTodoForm}
-            onHide={() => setShowEditTodoForm(false)}
-          >
-            <ModalHeader closeButton>
-              <ModalTitle>Eidt Your Todo </ModalTitle>
-            </ModalHeader>
-            <ModalBody>
-              <EditTodoForm
-                edit_todo={edit_todo}
-                closeForm={() => setShowAddTodoForm(false)} />
-            </ModalBody>
-            <ModalFooter></ModalFooter>
-
-          </Modal>
+          <EditTodoForm 
+          show = {showEditTodoForm}
+          edit_todo = {edit_todo}
+          // send todo that is clicked
+          todo = {todoToEdit}
+          onClose = {()=> setShowEditTodoForm(false)}
+          />
           {/* {showAddTodoForm && 
           <NewTodoForm add_todo = {add_todo} />}  */}
 

@@ -28,7 +28,7 @@ function TodoTable(props){
             rowass = {todo.rowAssigned}
             status = {todo.status}
             delete_todo = {props.delete_todo}
-            edit_todo = {props.edit_todo}
+            onEdit={props.onEdit}
             />
           ))}
     
