@@ -2,6 +2,7 @@ import TodoRowItem from "./TodoRowItem"
 
 function TodoTable(props){
 
+    console.log("table",props.todo_list)
     return(
         <table className = 'table table-hover'>
         <thead>

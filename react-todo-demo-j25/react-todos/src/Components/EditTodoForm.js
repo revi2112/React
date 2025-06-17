@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, ModalBody, ModalHeader, Form, Button } from 'react-bootstrap';
-
+import ToastMesage from './ToastMesage';
 
 function EditTodoForm(props) {
 
@@ -8,6 +8,8 @@ function EditTodoForm(props) {
     const [assigned, setAssigned] = useState('');
     const [priority, setPriority] = useState('');
     const [status, setStatus] = useState('');
+    const [successMsg, setSuccessMsg] = useState('Todo Updated Successfully');
+    const [showToast, setShowToast] = useState(false);
   
     useEffect(() => {
       if (props.todo) {
@@ -28,12 +30,19 @@ function EditTodoForm(props) {
             status: status
         };
         props.edit_todo(updated_todo, props.todo.rowNumber);
+        setShowToast(true);
         props.onClose();
     };
     return (
         <div>
+            <ToastMesage 
+            show = {showToast}
+            onClose = {()=> setShowToast(false)}
+            errorMsg = {successMsg}
+            toastVariant = {"success"}
+            />
             <Modal show={props.show} onHide={props.onClose} centered>
-                <ModalHeader>
+                <ModalHeader closeButton>
                     Edit Your Todo
                 </ModalHeader>
                 <ModalBody>

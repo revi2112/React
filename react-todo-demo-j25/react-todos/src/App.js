@@ -1,70 +1,141 @@
 import './App.css';
 import TodoTable from './Components/TodoTable';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NewTodoForm from './Components/NewTodoForm';
 import { Modal, ModalHeader, ModalBody, ModalFooter, ModalTitle } from 'react-bootstrap';
 import EditTodoForm from './Components/EditTodoForm';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import ToastMesage from './Components/ToastMesage';
+
 
 function App() {
 
   const [showAddTodoForm, setShowAddTodoForm] = useState(false);
   const [showEditTodoForm, setShowEditTodoForm] = useState(false);
-
+  const [showMoveTodoForm, setShowMoveTodoForm] = useState(false);
   const [todoToEdit, setTodoToEdit] = useState(null);
+  const [fromDate, setFromDate] = useState(new Date());
+  const [toDate, setToDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [visibleTodos, setVisibleTodos] = useState([]);
+  const [successMsg, setSuccessMsg] = useState('Todo Moved Successfully');
+  const [showToast, setShowToast] = useState(false);
+  const [todo_list, setTodoList] = useState({
+    '2025-06-16': [
+      { rowNumber: 1, rowDescription: 'Feed puppy', priority: "high", rowAssigned: 'User One', status: "Yet to Start" },
+      { rowNumber: 2, rowDescription: 'Water plants', priority: "high", rowAssigned: 'User Two', status: "Done" }
+    ],
+    '2025-06-17': [
+      { rowNumber: 3, rowDescription: 'Make dinner', priority: "medium", rowAssigned: 'User One', status: "In Progress" },
+      { rowNumber: 4, rowDescription: 'Charge phone battery', priority: "low", rowAssigned: 'User One', status: "Yet to Start" }
 
+    ]
+  });
 
-  const [todo_list, setTodoList] = useState([
-    { rowNumber: 1, rowDescription: 'Feed puppy', priority: "high", rowAssigned: 'User One', status: "Yet to Start" },
-    { rowNumber: 2, rowDescription: 'Water plants', priority: "high", rowAssigned: 'User Two', status: "Done" },
-    { rowNumber: 3, rowDescription: 'Make dinner', priority: "medium", rowAssigned: 'User One', status: "In Progress" },
-    { rowNumber: 4, rowDescription: 'Charge phone battery', priority: "low", rowAssigned: 'User One', status: "Yet to Start" }
-  ])
+  // const [todo_list, setTodoList] = useState([
+  //   { rowNumber: 1, rowDescription: 'Feed puppy', priority: "high", rowAssigned: 'User One', status: "Yet to Start" },
+  //   { rowNumber: 2, rowDescription: 'Water plants', priority: "high", rowAssigned: 'User Two', status: "Done" },
+  //   { rowNumber: 3, rowDescription: 'Make dinner', priority: "medium", rowAssigned: 'User One', status: "In Progress" },
+  // ])
+
+  useEffect(() => {
+    const dataKey = selectedDate.toISOString().split('T')[0];
+    console.log("hi",dataKey);
+    setVisibleTodos(todo_list[dataKey] || []);
+  }, [selectedDate, todo_list]);
 
   const add_todo = (newTodo) => {
-    console.log(newTodo)
-    const rowNumber = todo_list.length > 0
-     ? Math.max(...todo_list.map(t => t.rowNumber)) + 1
-     : 1;
-    
+    const dataKey = selectedDate.toISOString().split('T')[0];
+    console.log("neww", newTodo)
+    const current_todos = todo_list[dataKey] || [];
+    const rowNumber = todo_list[dataKey].length > 0
+      ? Math.max(...todo_list[dataKey].map(t => t.rowNumber)) + 1
+      : 1;
+
     const new_todo_toinsert = { rowNumber, ...newTodo }
+    console.log("final", new_todo_toinsert)
     // todo_list.push(new_todo) // table doesn't get change thats when state comes into picture
-    setTodoList([...todo_list, new_todo_toinsert])
+    setTodoList({
+      ...todo_list,
+      [dataKey]: [...current_todos, new_todo_toinsert]
+    })
     console.log(todo_list)
   }
 
   const delete_todo = (toDeleteRownum) => {
     console.log("delete called")
-    let filtered_rows = todo_list.filter(todo => todo.rowNumber !== toDeleteRownum);
+    const dataKey = selectedDate.toISOString().split('T')[0];
+    const filtered_rows = todo_list[dataKey].filter(todo => todo.rowNumber !== toDeleteRownum);
     console.log(filtered_rows);
-
-    setTodoList(filtered_rows)
-
+    setTodoList({
+      ...todo_list,
+      [dataKey] : filtered_rows,
+    });
   }
 
   const edit_todo = (updated_todo, todo_rownum) => {
     console.log(updated_todo, todo_rownum)
+    const dataKey = selectedDate.toISOString().split('T')[0];
     const updatedRowNum = Number(todo_rownum);
-    const updatedList = todo_list.map((todo)=>
-        todo.rowNumber === updatedRowNum ? {...todo, ...updated_todo} : todo
-  );
-  console.log(updatedList)
-   setTodoList(updatedList)
-  };
+    const updatedList = todo_list[dataKey].map((todo) =>
+      todo.rowNumber === updatedRowNum ? { ...todo, ...updated_todo } : todo
+    );
+    setTodoList({
+      ...todo_list,
+      [dataKey] : updatedList,
+    });
+    };
 
   const handleEdit = (todo) => {
     setTodoToEdit(todo);
     setShowEditTodoForm(true);
   };
-  
-    return (
+
+  const move_todo = () => {
+    //"2025-06-17T22:30:52.123Z"
+    //Tue Jun 17 2025 17:30:52 GMT-0500 (Central Daylight Time)
+
+    console.log(fromDate, toDate);
+    const fromKey = fromDate.toISOString().split('T')[0];
+    const toKey = toDate.toISOString().split('T')[0];
+    console.log(fromKey, toKey);
+
+    const todo_to_migrate = (todo_list[fromKey] || []).filter(todo => todo.status !== 'Done');
+    const todo_to_remain_from = (todo_list[fromKey] || []).filter(todo => todo.status === 'Done');
+
+    const todo_to_key = [ ...(todo_list[toKey] || []), ...todo_to_migrate ]
+
+    setTodoList(
+      {
+        ...todo_list,
+        [fromKey]: todo_to_remain_from,
+        [toKey]: todo_to_key
+      }
+    );
+
+    setShowMoveTodoForm(false);
+    setShowToast(true);
+  }
+
+  return (
     <div className="mt-5 container">
       <div className='card'>
         <div className='card-header'>
-          Your Todo's
+          <div className="d-flex justify-content-between">
+            <h5 className="mb-0">Your Todo's</h5>
+            <div>
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+                className="form-control"
+              />
+            </div>
+          </div>
         </div>
         <div className='card-body'>
-          <TodoTable 
-          todo_list={todo_list} delete_todo={delete_todo} onEdit={handleEdit}    
+          <TodoTable
+            todo_list={visibleTodos} delete_todo={delete_todo} onEdit={handleEdit}
           />
           {/* <button className='btn btn-primary' onClick={() => setShowAddTodoForm(!showAddTodoForm)}> 
           {showAddTodoForm ? 'Close New Todo' : 'New Todo'}
@@ -74,7 +145,7 @@ function App() {
               Add New Todo
             </button>
 
-            <button className="btn btn-primary" onClick={() => setShowAddTodoForm(true)}>
+            <button className="btn btn-primary" onClick={() => setShowMoveTodoForm(true)}>
               Move Your Todo
             </button>
           </div>
@@ -94,15 +165,55 @@ function App() {
 
           </Modal>
 
-          <EditTodoForm 
-          show = {showEditTodoForm}
-          edit_todo = {edit_todo}
-          // send todo that is clicked
-          todo = {todoToEdit}
-          onClose = {()=> setShowEditTodoForm(false)}
+          <EditTodoForm
+            show={showEditTodoForm}
+            edit_todo={edit_todo}
+            // send todo that is clicked
+            todo={todoToEdit}
+            onClose={() => setShowEditTodoForm(false)}
           />
-          {/* {showAddTodoForm && 
-          <NewTodoForm add_todo = {add_todo} />}  */}
+           <ToastMesage 
+            show = {showToast}
+            onClose = {()=> setShowToast(false)}
+            errorMsg = {successMsg}
+            toastVariant = {"success"}
+            />
+          {showMoveTodoForm &&
+            <Modal show={true}
+              onHide={() => setShowMoveTodoForm(false)}
+              centered>
+              <ModalHeader closeButton>
+                <ModalTitle>Move Your Todo's</ModalTitle>
+              </ModalHeader>
+
+              <ModalBody>
+                <div className='mb-3'>
+                  <label>From Date:</label>
+                  <DatePicker selected={fromDate}
+                    onChange={(date) => setFromDate(date)}
+                    className='from-control'
+                  />
+                </div>
+
+                <div className='mb-3'>
+                  <label> To Date:</label>
+                  <DatePicker
+                    selected={toDate}
+                    onChange={(date) => setToDate(date)}
+                    className='from-control'
+                  />
+                </div>
+              </ModalBody>
+
+              <ModalFooter>
+                <button className='btn btn-primary' onClick={move_todo}>Move Todo</button>
+                <button className='btn btn-secondary' onClick={() => setShowMoveTodoForm(false)}>Cancel</button>
+
+              </ModalFooter>
+            </Modal>
+          }
+
+
 
         </div>
       </div>
