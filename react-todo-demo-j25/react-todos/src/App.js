@@ -91,11 +91,18 @@ function App() {
 
     const fromKey = fromDate.toISOString().split('T')[0];
     const toKey = toDate.toISOString().split('T')[0];
+    const rowNumber = todo_list[dataKey].length > 0
+    ? Math.max(...todo_list[dataKey].map(t => t.rowNumber))
+    : 1;
 
-    const todo_to_migrate = (todo_list[fromKey] || []).filter(todo => todo.status !== 'Done');
+    var todo_to_migrate = (todo_list[fromKey] || []).filter(todo => todo.status !== 'Done');
+    const todo_to_migrate_row_num = todo_to_migrate.map((todo, idx) => ({
+      ...todo,
+      rowNumber : maxRowInDest + idx + 1
+    }));
     const todo_to_remain_from = (todo_list[fromKey] || []).filter(todo => todo.status === 'Done');
 
-    const todo_to_key = [ ...(todo_list[toKey] || []), ...todo_to_migrate ]
+    const todo_to_key = [ ...(todo_list[toKey] || []), ...todo_to_migrate_row_num ]
 
     setTodoList(
       {
