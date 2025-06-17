@@ -35,7 +35,6 @@ function NewTodoForm(props) {
             return;
           }
        else {
-            console.log("in submit")
 
             props.add_todo({ rowDescription: description, rowAssigned: assigned, status: status, priority: priority });
             setAssigned('');

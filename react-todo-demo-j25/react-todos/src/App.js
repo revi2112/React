@@ -41,33 +41,27 @@ function App() {
 
   useEffect(() => {
     const dataKey = selectedDate.toISOString().split('T')[0];
-    console.log("hi",dataKey);
     setVisibleTodos(todo_list[dataKey] || []);
   }, [selectedDate, todo_list]);
 
   const add_todo = (newTodo) => {
     const dataKey = selectedDate.toISOString().split('T')[0];
-    console.log("neww", newTodo)
     const current_todos = todo_list[dataKey] || [];
     const rowNumber = todo_list[dataKey].length > 0
       ? Math.max(...todo_list[dataKey].map(t => t.rowNumber)) + 1
       : 1;
 
     const new_todo_toinsert = { rowNumber, ...newTodo }
-    console.log("final", new_todo_toinsert)
     // todo_list.push(new_todo) // table doesn't get change thats when state comes into picture
     setTodoList({
       ...todo_list,
       [dataKey]: [...current_todos, new_todo_toinsert]
     })
-    console.log(todo_list)
   }
 
   const delete_todo = (toDeleteRownum) => {
-    console.log("delete called")
     const dataKey = selectedDate.toISOString().split('T')[0];
     const filtered_rows = todo_list[dataKey].filter(todo => todo.rowNumber !== toDeleteRownum);
-    console.log(filtered_rows);
     setTodoList({
       ...todo_list,
       [dataKey] : filtered_rows,
@@ -75,7 +69,6 @@ function App() {
   }
 
   const edit_todo = (updated_todo, todo_rownum) => {
-    console.log(updated_todo, todo_rownum)
     const dataKey = selectedDate.toISOString().split('T')[0];
     const updatedRowNum = Number(todo_rownum);
     const updatedList = todo_list[dataKey].map((todo) =>
@@ -96,10 +89,8 @@ function App() {
     //"2025-06-17T22:30:52.123Z"
     //Tue Jun 17 2025 17:30:52 GMT-0500 (Central Daylight Time)
 
-    console.log(fromDate, toDate);
     const fromKey = fromDate.toISOString().split('T')[0];
     const toKey = toDate.toISOString().split('T')[0];
-    console.log(fromKey, toKey);
 
     const todo_to_migrate = (todo_list[fromKey] || []).filter(todo => todo.status !== 'Done');
     const todo_to_remain_from = (todo_list[fromKey] || []).filter(todo => todo.status === 'Done');
